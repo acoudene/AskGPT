@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AskGPT": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "OPENAI_API_KEY": "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"
+      }
+    }
+  }
+}
