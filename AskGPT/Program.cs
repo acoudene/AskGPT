@@ -4,6 +4,7 @@ using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Mime;
@@ -15,6 +16,8 @@ if (!args.Any())
 }
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
 builder.Services
   .Configure<OpenAIConfiguration>(builder.Configuration.GetSection(OpenAIConfiguration.OpenAIConfigurationKey));
@@ -29,7 +32,7 @@ builder.Services
     Guard.IsNotNull(openAIConfiguration);
     Guard.IsNotNullOrWhiteSpace(openAIConfiguration.Url);
     Guard.IsNotNullOrWhiteSpace(openAIConfiguration.Key);
-
+    
     client.BaseAddress = new Uri(openAIConfiguration.Url);
     client.DefaultRequestHeaders.Accept.Clear();
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));

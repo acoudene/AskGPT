@@ -4,7 +4,7 @@
       "commandName": "Project",
       "commandLineArgs": "\"Give me Docker command to list instances\"",
       "environmentVariables": {
-        "OPENAI:Key": "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",
+        //"OPENAI:Key": "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",
         "OPENAI:Url": "https://api.openai.com/v1/completions",
         "OPENAI:Model": "text-davinci-003",
         "OPENAI:Temperature": "0",
