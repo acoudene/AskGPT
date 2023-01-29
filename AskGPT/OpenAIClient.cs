@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
@@ -24,14 +25,23 @@ namespace AskGPT
       _clientFactory = clientFactory;
     }
 
+    public class OpenAIRequest
+    {
+      [JsonProperty(PropertyName ="model")]
+      public string Model { get; set; } = string.Empty;
+      [JsonProperty(PropertyName = "prompt")]
+      public string Prompt { get; set; } = string.Empty;
+    }
+
     public async Task<string> GetCompletionsAsync(string question)
     {
       Guard.IsNotNullOrWhiteSpace(question);
 
       using var client = _clientFactory.CreateClient();
 
-      string parameters = $"{{\"model\": \"{_options.Model}\", \"prompt\": \"{question}\",\"temperature\": {_options.Temperature},\"max_tokens\": {_options.MaxTokens}}}";
-      var content = new StringContent(parameters, Encoding.UTF8, MediaTypeNames.Application.Json);
+      var request = new OpenAIRequest() { Model = _options.Model, Prompt = question };
+      string? payload = JsonConvert.SerializeObject(request);      
+      var content = new StringContent(payload, Encoding.UTF8, MediaTypeNames.Application.Json);
 
       HttpResponseMessage response = await client.PostAsJsonAsync(string.Empty, content);
       response.EnsureSuccessStatusCode();

@@ -16,8 +16,6 @@ namespace AskGPT
 
     public string Model { get; set; } = string.Empty;
 
-    public string Prompt { get; set; } = string.Empty;
-
     public int Temperature { get; set; }
 
     public int MaxTokens { get; set; }

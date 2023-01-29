@@ -48,15 +48,20 @@ try
   string question = args[0];
   var client = host.Services.GetRequiredService<OpenAIClient>();
   guess = await client.GetCompletionsAsync(question);
+
+  Console.ForegroundColor = ConsoleColor.Green;
+  Console.WriteLine($"{guess}");
+  Console.ResetColor();
+
 }
-catch(Exception ex)
+catch (Exception ex)
 {
-  guess = ex.Message;
+  Console.ForegroundColor = ConsoleColor.Red;
+  Console.WriteLine($"{ex.Message}");
+  Console.ResetColor();
+
 }
 
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine($"{guess}");
-Console.ResetColor();
 
 
 
