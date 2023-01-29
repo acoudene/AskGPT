@@ -1,16 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace AskGPT
 {
-  internal class OpenAIClient
+  public class OpenAIClient
   {
-    public string AskGPT(string question)
-    {
+    private readonly OpenAIConfiguration _options;
+    private readonly IHttpClientFactory _clientFactory;
 
+    public OpenAIClient(IOptions<OpenAIConfiguration> options,
+                        IHttpClientFactory clientFactory)
+    {
+      Guard.IsNotNull(options);
+      Guard.IsNotNull(options.Value);
+      Guard.IsNotNull(clientFactory);
+
+      _options = options.Value;
+      _clientFactory = clientFactory;
+    }
+
+    public async Task<string> GetCompletionsAsync(string question)
+    {
+      Guard.IsNotNullOrWhiteSpace(question);
+
+      using var client = _clientFactory.CreateClient();
+
+      string parameters = $"{{\"model\": \"{_options.Model}\", \"prompt\": \"{question}\",\"temperature\": {_options.Temperature},\"max_tokens\": {_options.MaxTokens}}}";
+      var content = new StringContent(parameters, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+      HttpResponseMessage response = await client.PostAsJsonAsync(string.Empty, content);
+      response.EnsureSuccessStatusCode();
+
+      string responseString = await response.Content.ReadAsStringAsync();
+      dynamic? dyData = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+      Guard.IsNotNull(dyData);
+
+      return GuessCommand(dyData!.choices[0].text);      
+    }
+
+    private static string GuessCommand(string raw)
+    {      
+      int lastIndex = raw.LastIndexOf('\n');
+      string guess = raw.Substring(lastIndex + 1);      
+      return guess;
     }
   }
 }
