@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace AskGPT
 {
-  public class OpenAIClient
+  public partial class OpenAIClient
   {
     private readonly OpenAIConfiguration _options;
     private readonly IHttpClientFactory _clientFactory;
@@ -25,25 +25,28 @@ namespace AskGPT
       _clientFactory = clientFactory;
     }
 
-    public class OpenAIRequest
-    {
-      [JsonProperty(PropertyName ="model")]
-      public string Model { get; set; } = string.Empty;
-      [JsonProperty(PropertyName = "prompt")]
-      public string Prompt { get; set; } = string.Empty;
-    }
-
     public async Task<string> GetCompletionsAsync(string question)
     {
       Guard.IsNotNullOrWhiteSpace(question);
 
       using var client = _clientFactory.CreateClient();
 
-      var request = new OpenAIRequest() { Model = _options.Model, Prompt = question };
+      var request = new OpenAIRequest()
+      {
+        Model = _options.Model,
+        Prompt = question,
+        FrequencyPenalty = _options.FrequencyPenalty,
+        MaxTokens = _options.MaxTokens,
+        PresencePenalty = _options.PresencePenalty,
+        //Stop = _options.Stop,
+        Temperature = _options.Temperature,
+        TopP = _options.TopP
+      };
+
       string? payload = JsonConvert.SerializeObject(request);      
       var content = new StringContent(payload, Encoding.UTF8, MediaTypeNames.Application.Json);
 
-      HttpResponseMessage response = await client.PostAsJsonAsync(string.Empty, content);
+      HttpResponseMessage response = await client.PostAsync(string.Empty, content);
       response.EnsureSuccessStatusCode();
 
       string responseString = await response.Content.ReadAsStringAsync();
@@ -51,7 +54,8 @@ namespace AskGPT
 
       Guard.IsNotNull(dyData);
 
-      return GuessCommand(dyData!.choices[0].text);      
+      string text = dyData!.choices[0].text;
+      return GuessCommand(text);      
     }
 
     private static string GuessCommand(string raw)
