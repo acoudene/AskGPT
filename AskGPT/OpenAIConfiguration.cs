@@ -10,7 +10,7 @@ namespace AskGPT
   {
     public const string OpenAIConfigurationKey = "OPENAI";
 
-    public string Key { get; set; } = "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";
+    public string Key { get; set; } = "OPENAPI-KEY";
 
     public string Url { get; set; } = "https://api.openai.com/v1/completions";
 
