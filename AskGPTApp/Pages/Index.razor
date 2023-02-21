@@ -1,0 +1,20 @@
+﻿@page "/"
+
+<MudText Typo="Typo.h6">AskGPT</MudText>
+<MudTextField @bind-Value="Question" Label="Type your question" Variant="Variant.Outlined"></MudTextField>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await AskGPTAsync())">Ask GPT</MudButton>
+<MudText Typo="Typo.h6">@AnswerByGPT</MudText>
+
+@code {
+  public string Question { get; set; } = String.Empty;
+
+  public string AnswerByGPT { get; set; } = String.Empty;
+
+  [Inject]
+  public OpenAIClient? OpenAIClient { get; set; }
+  private async Task AskGPTAsync()
+  {
+    Guard.IsNotNull(OpenAIClient);
+    AnswerByGPT = await OpenAIClient.GetCompletionsAsync(Question);
+  }
+}
